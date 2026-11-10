@@ -42,21 +42,25 @@
         <p class="text-gray-600 text-sm">تم تطوير هذا الموقع بواسطة <br> <span class="text-white font-bold text-lg">Ahmed El kady</span></p>
     </footer>
 
-    <!-- جافا سكريبت السحرية لإدارة الموقع بالكامل -->
     <script>
         const API_KEY = "c2b1d2b1fd5d6e3b5b660c57fb691db4";
-        const BASE_URL = "https://themoviedb.org";
+        // استخدام سيرفر وسيط لحل مشكلة حظر الأمان CORS أونلاين
+        const PROXY_URL = "https://allorigins.win";
+        const TMDB_URL = "https://themoviedb.org";
 
         async function fetchData(endpoint, params = {}) {
-            const url = new URL(BASE_URL + endpoint);
-            url.searchParams.append('api_key', API_KEY);
-            url.searchParams.append('language', 'ar');
+            const targetUrl = new URL(TMDB_URL + endpoint);
+            targetUrl.searchParams.append('api_key', API_KEY);
+            targetUrl.searchParams.append('language', 'ar');
             for (let key in params) {
-                url.searchParams.append(key, params[key]);
+                targetUrl.searchParams.append(key, params[key]);
             }
+            
             try {
-                const response = await fetch(url);
-                return await response.json();
+                // الاتصال عبر البروكسي لتخطي الحظر
+                const response = await fetch(PROXY_URL + encodeURIComponent(targetUrl.href));
+                const data = await response.json();
+                return JSON.parse(data.contents);
             } catch (error) {
                 console.error("Error fetching data:", error);
                 return {};
@@ -72,11 +76,11 @@
 
         async function loadHomePage() {
             const container = document.getElementById('main-content');
-            container.innerHTML = `<div class="p-20 text-center text-gray-500 text-xl">جاري تحميل الأفلام الحصرية...</div>`;
+            container.innerHTML = `<div class="p-20 text-center text-gray-500 text-xl">جاري تحميل الأفلام الحصرية من السيرفر...</div>`;
 
             const data = await fetchData("trending/movie/week");
             const movies = data.results || [];
-            const top = movies[0] || null;
+            const top = movies.length > 0 ? movies[0] : null;
 
             let heroHtml = '';
             if (top) {
@@ -97,7 +101,7 @@
                 if(movie.poster_path) {
                     gridHtml += `
                     <a href="#" onclick="navigate('movie', ${movie.id})" class="neon-card group rounded-3xl overflow-hidden bg-zinc-900 shadow-2xl">
-                        <img src="https://tmdb.org{movie.poster_path}" class="w-full h-[400px] object-cover group-hover:scale-110 transition duration duration-500" onerror="this.src='https://placeholder.com'">
+                        <img src="https://tmdb.org{movie.poster_path}" class="w-full h-[400px] object-cover group-hover:scale-110 transition duration-500" onerror="this.src='https://placeholder.com'">
                         <div class="p-4 bg-zinc-900">
                             <h4 class="font-bold truncate text-sm text-white">${movie.title}</h4>
                             <div class="flex justify-between mt-2"><span class="text-red-500 font-bold">⭐ ${movie.vote_average ? movie.vote_average.toFixed(1) : '0'}</span></div>
@@ -148,7 +152,7 @@
         }
 
         async function handleSearch(event) {
-            event.preventDefault(); // يمنع الصفحة من عمل Refresh وطحن النتائج
+            event.preventDefault();
             const query = document.getElementById('searchInput').value.trim();
             if (!query) return;
 
@@ -163,4 +167,3 @@
                 if(movie.poster_path) {
                     gridHtml += `
                     <a href="#" onclick="navigate('movie', ${movie.id})" class="neon-card group rounded-3xl overflow-hidden bg-zinc-900 shadow-2xl">
-                        <img src="https://tmdb.org{movie.poster_path}" class="w-full h-[400px] object-cover group-hover:scale-110 transition duration duration-500" onerror="this.src='https://placeholder.com'">
