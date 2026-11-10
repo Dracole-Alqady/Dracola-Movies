@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DRACOLE MOVIES | THE MASTERPIECE</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;900&display=swap');
+        @import url('https://googleapis.com');
         body { background: #020202; color: white; font-family: 'Cairo', sans-serif; overflow-x: hidden; }
         .glass { background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(220, 38, 38, 0.3); }
         .neon-card { transition: 0.4s; border: 1px solid #111; position: relative; }
@@ -42,10 +42,10 @@
         <p class="text-gray-600 text-sm">تم تطوير هذا الموقع بواسطة <br> <span class="text-white font-bold text-lg">Ahmed El kady</span></p>
     </footer>
 
-    <!-- جافا سكريبت السحرية لإدارة الموقع بدون سيرفر بايثون -->
+    <!-- جافا سكريبت السحرية لإدارة الموقع بالكامل -->
     <script>
         const API_KEY = "c2b1d2b1fd5d6e3b5b660c57fb691db4";
-        const BASE_URL = "https://api.themoviedb.org/3/";
+        const BASE_URL = "https://themoviedb.org";
 
         async function fetchData(endpoint, params = {}) {
             const url = new URL(BASE_URL + endpoint);
@@ -63,7 +63,6 @@
             }
         }
 
-        // دالة لإدارة الصفحات داخلياً بدون إعادة تحميل المتصفح
         function navigate(view, id = null) {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             if (view === 'home') loadHomePage();
@@ -86,7 +85,7 @@
                     <img src="https://tmdb.org{top.backdrop_path}" class="absolute inset-0 w-full h-full object-cover opacity-40 hero-bg">
                     <div class="relative z-10 max-w-3xl space-y-6">
                         <span class="bg-red-600 text-white px-4 py-1 rounded text-xs font-black uppercase tracking-widest">الأكثر رواجاً</span>
-                        <h2 class="text-6xl md:text-8xl font-black leading-tight">${top.title}</h2>
+                        <h2 class="text-5xl md:text-8xl font-black leading-tight">${top.title}</h2>
                         <p class="text-xl text-gray-300 line-clamp-3">${top.overview || 'لا يوجد وصف متاح حالياً.'}</p>
                         <a href="#" onclick="navigate('movie', ${top.id})" class="inline-block bg-red-600 hover:bg-red-700 px-10 py-4 rounded-full font-black transition-all transform hover:scale-110">شاهد الآن</a>
                     </div>
@@ -95,14 +94,16 @@
 
             let gridHtml = '';
             movies.forEach(movie => {
-                gridHtml += `
-                <a href="#" onclick="navigate('movie', ${movie.id})" class="neon-card group rounded-3xl overflow-hidden bg-zinc-900 shadow-2xl">
-                    <img src="https://tmdb.org{movie.poster_path}" class="w-full h-[400px] object-cover group-hover:scale-110 transition duration-500" onerror="this.src='https://placeholder.com'">
-                    <div class="p-4 bg-zinc-900">
-                        <h4 class="font-bold truncate text-sm text-white">${movie.title}</h4>
-                        <div class="flex justify-between mt-2"><span class="text-red-500 font-bold">⭐ ${movie.vote_average.toFixed(1)}</span></div>
-                    </div>
-                </a>`;
+                if(movie.poster_path) {
+                    gridHtml += `
+                    <a href="#" onclick="navigate('movie', ${movie.id})" class="neon-card group rounded-3xl overflow-hidden bg-zinc-900 shadow-2xl">
+                        <img src="https://tmdb.org{movie.poster_path}" class="w-full h-[400px] object-cover group-hover:scale-110 transition duration duration-500" onerror="this.src='https://placeholder.com'">
+                        <div class="p-4 bg-zinc-900">
+                            <h4 class="font-bold truncate text-sm text-white">${movie.title}</h4>
+                            <div class="flex justify-between mt-2"><span class="text-red-500 font-bold">⭐ ${movie.vote_average ? movie.vote_average.toFixed(1) : '0'}</span></div>
+                        </div>
+                    </a>`;
+                }
             });
 
             container.innerHTML = `
@@ -147,7 +148,7 @@
         }
 
         async function handleSearch(event) {
-            event.preventDefault();
+            event.preventDefault(); // يمنع الصفحة من عمل Refresh وطحن النتائج
             const query = document.getElementById('searchInput').value.trim();
             if (!query) return;
 
@@ -159,11 +160,7 @@
 
             let gridHtml = '';
             movies.forEach(movie => {
-                gridHtml += `
-                <a href="#" onclick="navigate('movie', ${movie.id})" class="neon-card group rounded-3xl overflow-hidden bg-zinc-900 shadow-2xl">
-                    <img src="https://tmdb.org{movie.poster_path}" class="w-full h-[400px] object-cover group-hover:scale-110 transition duration-500" onerror="this.src='https://placeholder.com'">
-                    <div class="p-4 bg-zinc-900"><h4 class="font-bold truncate text-white">${movie.title}</h4></div>
-                </a>`;
-            });
-
-            container.innerHTML = `
+                if(movie.poster_path) {
+                    gridHtml += `
+                    <a href="#" onclick="navigate('movie', ${movie.id})" class="neon-card group rounded-3xl overflow-hidden bg-zinc-900 shadow-2xl">
+                        <img src="https://tmdb.org{movie.poster_path}" class="w-full h-[400px] object-cover group-hover:scale-110 transition duration duration-500" onerror="this.src='https://placeholder.com'">
